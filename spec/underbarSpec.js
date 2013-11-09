@@ -126,7 +126,7 @@ describe("uniq", function() {
 
   it("should handle iterators that work with a sorted array", function() {
     var iterator = function(value) { return value +1; };
-    var list = [1, 2, 2, 3, 4, 4];
+    var list = [1, 2, 2, 3, 4, 4, 4];
     expect(_.uniq(list, true, iterator)).to.eql([1, 2, 3, 4]);
   });
 });
