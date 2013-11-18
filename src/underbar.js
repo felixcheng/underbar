@@ -51,6 +51,15 @@ var _ = { };
     // TIP: Here's an example of a function that needs to iterate, which we've
     // implemented for you. Instead of using a standard `for` loop, though,
     // it uses the iteration helper `each`, which you will need to write.
+    /*var ans = -1
+    return _.each(array, function(value, ind){
+      if (value === target){
+        ans = ind;
+        return ans;
+      }
+    })
+    return parseInt(ans);
+  };*/
     for (var i = 0; i < array.length; i++){
       if (array[i] === target){
         return i;
@@ -62,11 +71,16 @@ var _ = { };
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, iterator) {
     var answer = [];
-    for (var i = 0; i < collection.length; i++){
+    _.each(collection, function(value){
+      if (iterator(value)){
+        answer.push(value);
+      }
+    })
+    /*for (var i = 0; i < collection.length; i++){
       if (iterator(collection[i])){
         answer.push(collection[i]);
       }
-    }
+    }*/
     return answer;
   };
 
@@ -86,7 +100,6 @@ var _ = { };
     ans.push(array[0]);
     for (var i = 1; i < array.length; i++) {
       
-      console.log (array[i]);
       if (array[i] != array[i-1]){
         ans.push(array[i]);
       }
@@ -129,8 +142,13 @@ var _ = { };
 
   // Calls the method named by methodName on each value in the list.
   _.invoke = function(list, methodName, args) {
+    var para = (Array.prototype.slice.call(arguments, 2));
+    return _.map(obj, function(value) {
+      return method.apply(value, para);
+    });
   };
 
+  
   // Reduces an array or object to a single value by repetitively calling
   // iterator(previousValue, item) for each item. previousValue should be
   // the return value of the previous iterator call.
@@ -189,8 +207,13 @@ var _ = { };
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
     return _.every(collection, function(value, index, list) {
-      return !iterator.call(context, value, index, list);
-    }, context);
+      return _.reduce(collection, function(bool, item){
+        if (iterator(item) == true){
+          bool = true;
+      } return bool;
+    }, false
+    );})
+    
   };
 
 
@@ -214,12 +237,26 @@ var _ = { };
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-  };
+      for (var e in arguments){
+        _.each(arguments[e], function(item, prop) {
+          obj[prop] = item;
+        })
+      }
+      return obj;
+    }
+
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-  };
+      for (var e in arguments){
+        _.each(arguments[e], function(item, prop) {
+          if (obj[prop]== null){
+            obj[prop] = item;}
+        })
+      }
+      return obj;
+  }
 
 
   /**
@@ -259,7 +296,16 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
+    var storedObj = {};
+    return function (n) {
+      if (storedObj[n] == null){
+        storedObj[n] = func(n);
+      }
+      return storedObj[n];
+    }
+  }
+
+    
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -268,6 +314,8 @@ var _ = { };
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var para = (Array.prototype.slice.call(arguments, 2));
+    return setInterval(function(){return func.apply(context, para); }, wait);
   };
 
 
@@ -278,6 +326,13 @@ var _ = { };
 
   // Shuffle an array.
   _.shuffle = function(array) {
+    var ans =[];
+    while (array.length > 0) {
+      var ind = Math.floor(Math.random() * (array.length + 1));
+      ans.push(array[ind]);
+      array = array.splice(ind, 1);
+    }
+    return ans;
   };
 
 
