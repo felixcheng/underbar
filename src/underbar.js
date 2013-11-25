@@ -142,11 +142,14 @@ var _ = { };
 
   // Calls the method named by methodName on each value in the list.
   _.invoke = function(list, methodName, args) {
-    var para = (Array.prototype.slice.call(arguments, 2));
-    return _.map(obj, function(value) {
-      return method.apply(value, para);
-    });
-  };
+    if (typeof(methodName) == 'function') {
+      return _.map(list, function(value) {
+        return methodName.apply(value);}
+    )}  else {
+    return _.map(list, function(value) {
+      return value[methodName]();}
+    );
+  };}
 
   
   // Reduces an array or object to a single value by repetitively calling
