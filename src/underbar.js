@@ -207,17 +207,33 @@ var _ = { };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
+
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
-    return _.every(collection, function(value, index, list) {
-      return _.reduce(collection, function(bool, item){
-        if (iterator(item) == true){
-          bool = true;
-      } return bool;
-    }, false
-    );})
+    if (arguments.length < 2){
+      iterator = function (item){
+        return (item);
+      }
+    }
     
-  };
+    /*return _.reduce(collection, function(bool, item){
+      if (iterator(item)){
+          bool = true;
+      }
+      return bool;}, 
+      false);  };*/
+    
+
+    var bool = _.every(collection, function(item){
+      return !iterator(item);
+    })
+
+    if (bool){
+      return false
+    }  else {
+      return true
+    }
+  }; 
 
 
 
@@ -350,6 +366,7 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -358,6 +375,28 @@ var _ = { };
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var counter = arguments.length;
+    var maxLength = 0;
+    for (n in arguments){
+      if (arguments[n].length > maxLength){
+        maxLength = arguments[n].length;
+      }
+    }
+
+    var ans = [];
+    
+      
+      for (var n = 0 ; n < maxLength; n++){
+        var ansPart = [];
+        for (var m = 0; m < counter; m++){
+            ansPart.push(arguments[m][n])
+        }
+      ans.push(ansPart);
+      }
+      
+    
+    return ans;
+    
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -365,11 +404,25 @@ var _ = { };
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    if (arguments.length < 2){
+      result = [];
+    }
+    _.each(nestedArray, function(value){
+      if (Array.isArray(value)){
+        _.flatten(value, result)
+      } else {
+        result.push(value);
+      }
+    })
+    return result;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var counter = arguments.length;
+    var ans = [];
+
   };
 
   // Take the difference between one array and a number of other arrays.
