@@ -51,22 +51,16 @@ var _ = { };
     // TIP: Here's an example of a function that needs to iterate, which we've
     // implemented for you. Instead of using a standard `for` loop, though,
     // it uses the iteration helper `each`, which you will need to write.
-    /*var ans = -1
-    return _.each(array, function(value, ind){
-      if (value === target){
+    var ans = -1
+    _.each(array, function(value, ind){
+      if (value === target && ans === -1){
         ans = ind;
-        return ans;
       }
     })
     return parseInt(ans);
-  };*/
-    for (var i = 0; i < array.length; i++){
-      if (array[i] === target){
-        return i;
-      }
-    }
-    return -1
   };
+
+  
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, iterator) {
@@ -76,11 +70,6 @@ var _ = { };
         answer.push(value);
       }
     })
-    /*for (var i = 0; i < collection.length; i++){
-      if (iterator(collection[i])){
-        answer.push(collection[i]);
-      }
-    }*/
     return answer;
   };
 
@@ -89,22 +78,21 @@ var _ = { };
     // TIP: see if you can re-use _.select() here, without simply
     // copying code in and modifying it
     return _.filter(collection, function(value, index, list) {
-      return !iterator.call(context, value, index, list);
+      return !iterator.call(this, value, index, list);
     }, context);
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
     var ans =[];
-    array = array.sort(function(a,b){return a-b});
-    ans.push(array[0]);
-    for (var i = 1; i < array.length; i++) {
-      
-      if (array[i] != array[i-1]){
-        ans.push(array[i]);
+    var check = {};
+    _.each(array, function(value, index){
+      if (check[value] == null){
+        ans.push(value);
+        check[value] = true;
       }
-    };
-    
+    })
+
     return ans;
     
   };
@@ -116,9 +104,9 @@ var _ = { };
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
     var ans = [];
-    for (var e in array) {
-      ans.push(iterator(array[e]));
-    };
+    _.each(array, function(value){
+      ans.push(iterator(value));
+    })
     return ans;
   };
 
@@ -215,15 +203,7 @@ var _ = { };
         return (item);
       }
     }
-    
-    /*return _.reduce(collection, function(bool, item){
-      if (iterator(item)){
-          bool = true;
-      }
-      return bool;}, 
-      false);  };*/
-    
-
+  
     var bool = _.every(collection, function(item){
       return !iterator(item);
     })
@@ -334,7 +314,7 @@ var _ = { };
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
     var para = (Array.prototype.slice.call(arguments, 2));
-    return setInterval(function(){return func.apply(context, para); }, wait);
+    return setInterval(function(){return func.apply(this, para); }, wait);
   };
 
 
@@ -366,7 +346,23 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    if (typeof(iterator) == 'string'){
+      var methodName = iterator;
+      iterator = function(x){return x[methodName]}
+    }
 
+    collection.sort(function (a, b) {
+    if (iterator(a) > iterator(b)){
+      return 1;
+    }
+    else if (iterator(a) < iterator(b)){
+      return -1;
+    }
+    return 0;
+    });
+
+    
+    return collection;
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -422,13 +418,36 @@ var _ = { };
   _.intersection = function() {
     var counter = arguments.length;
     var ans = [];
-
+    for (var e = 0; e < arguments[0].length; e++){
+      var n =0;
+      for(var i =0; i < counter; i++){
+        if (_.contains(arguments[i], arguments[0][e])){
+          n++;
+          if (n === counter){
+            ans.push(arguments[0][e]);
+    } } } }
+        
+    return ans;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var counter = arguments.length;
+    var ans = [];
+    for (var e = 0; e < arguments[0].length; e++){
+      var n =0;
+      for(var i =0; i < counter; i++){
+        if (_.contains(arguments[i], arguments[0][e])){
+          n++;
+        }}
+        if (n < 2){
+            ans.push(arguments[0][e]);
+    } } 
+        
+    return ans;
   };
+
 
 
   /**
@@ -440,7 +459,58 @@ var _ = { };
   // during a given window of time.
   //
   // See the Underbar readme for details.
+  var last = 0;
+
   _.throttle = function(func, wait) {
-  };
+    // if not called within 'wait' - execute the function
+    //else- waited a certain period of time ()
+
+    var now = new Date();
+
+    var para = (Array.prototype.slice.call(arguments, 2));
+    var exe = func.apply(this, para);
+
+      if (now - last >= wait){
+          var last = now;
+          return function(){return exe};
+      } else {
+        clearTimeout(exe);
+        return function(){var last = now;
+          return _.delay(func, wait);
+
+        }
+      }
+
+         
+   
+  }
+
+  /*_.throttle = function(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    options || (options = {});
+    var later = function() {
+      previous = options.leading === false ? 0 : new Date;
+      timeout = null;
+      result = func.apply(context, args);
+    };
+    return function() {
+      var now = new Date;
+      if (!previous && options.leading === false) previous = now;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0) {
+        clearTimeout(timeout);
+        timeout = null;
+        previous = now;
+        result = func.apply(context, args);
+      } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+  };*/
 
 }).call(this);
