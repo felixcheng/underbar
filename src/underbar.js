@@ -459,27 +459,31 @@ var _ = { };
   // during a given window of time.
   //
   // See the Underbar readme for details.
-  var last = 0;
 
   _.throttle = function(func, wait) {
     // if not called within 'wait' - execute the function
     //else- waited a certain period of time ()
-
-    var now = new Date();
-
+    var last = 0;     
     var para = (Array.prototype.slice.call(arguments, 2));
     var exe = func.apply(this, para);
 
+    return function(){
+      var now = new Date();
+
       if (now - last >= wait){
           var last = now;
-          return function(){return exe};
+          return exe;
+
       } else {
-        clearTimeout(exe);
-        return function(){var last = now;
+        //var temp = setTimeout(exe, wait);
+        //clearTimeout(temp);
+        return function(){
+          last = now;
           return _.delay(func, wait);
 
         }
       }
+    }
 
          
    
