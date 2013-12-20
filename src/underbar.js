@@ -380,8 +380,7 @@ var _ = { };
     }
 
     var ans = [];
-    
-      
+         
       for (var n = 0 ; n < maxLength; n++){
         var ansPart = [];
         for (var m = 0; m < counter; m++){
@@ -465,27 +464,20 @@ var _ = { };
     //else- waited a certain period of time ()
     var last = 0;     
     var para = (Array.prototype.slice.call(arguments, 2));
-    var exe = func.apply(this, para);
+    //var exe = func.apply(this, para);
+    var res;
 
     return function(){
       var now = new Date();
 
       if (now - last >= wait){
-          var last = now;
-          return exe;
-
-      } else {
-        //var temp = setTimeout(exe, wait);
-        //clearTimeout(temp);
-        return function(){
           last = now;
-          return _.delay(func, wait);
+          res = func.apply(this, para); 
+          return res;
 
-        }
-      }
-    }
-
-         
+      } 
+      return res;
+    }   
    
   }
 

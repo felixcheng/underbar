@@ -561,7 +561,7 @@ describe("throttle", function() {
     setTimeout(saveResult, 32);
     setTimeout(saveResult, 80);
     setTimeout(saveResult, 96);
-    setTimeout(saveResult, 144);
+    setTimeout(saveResult, 148);
     setTimeout(function() {
       expect(results[0]).to.eql(1);
       expect(results[1]).to.eql(1);
